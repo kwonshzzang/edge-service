@@ -24,3 +24,22 @@ spring:
           uri: ${ORDER_SERVICE_URL:http://localhost:9002}/orders # URI 값은 환경 변수로부터 오거나 해당 환경 변수가 없는 경우 기본값을 사용한다.
           predicates:
             - Path=/orders/**
+      httpclient:  # HTTP 클라이언트에 대한 설정 속성
+        connect-timeout: 2000 # 연결을 수립하기까지의 타임아웃(밀리초)
+        response-timeout: 5s  # 응답을 받을 때까지의 타임아웃(기간)
+        pool:
+          type: elastic       # 연결 풀 유형(elastic, fixed, disable 중 하나)
+          max-idle-time: 15s  # 통신 채널이 닫히기 전 대기하는 시간
+          max-life-time: 60s  # 통신 채널이 열려 있는 기간
+      default-filters: # 기본 필터 목록
+        - name: Retry  # 필터 이름
+          args:
+            retries: 3    # 최대 3회의 재시도
+            methods: GET  # GET 요청만 재시도
+            series: SERVER_ERROR # 5xx 오류에 대해서만 재시도
+            exceptions: java.io.IOException, java.util.concurrent.TimeoutException # 지정한 예외가 발생할 때만 재시도
+            backoff: # 재시도는 firstBackoff*(factor^n) 공식을 사용해 계산
+              firstBackoff: 50ms
+              maxBackOff: 500ms
+              factor: 2
+              basedOnPreviousValue: false
