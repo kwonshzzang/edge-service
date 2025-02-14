@@ -20,10 +20,19 @@ spring:
           uri: ${CATALOG_SERVICE_URL:http://localhost:9001}/books
           predicates:
             - Path=/books/** # 일치하는 경로를 술어로 사용한다.
+          filters:
+            - name: CircuitBreaker # 필터 이름
+              args:
+                name: catalogCircuitBreaker # 서킷 브레이커 이름
+                fallbackUri: forward:/catalog-fallback # 회로가 개방 상태일 때 요청을 이 URI로 전달
         - id: order-route
           uri: ${ORDER_SERVICE_URL:http://localhost:9002}/orders # URI 값은 환경 변수로부터 오거나 해당 환경 변수가 없는 경우 기본값을 사용한다.
           predicates:
             - Path=/orders/**
+          filters:
+            - name: CircuitBreaker # 서킷 브레이커에 대해 정의한 폴백이 없음
+              args:
+                name: orderCircuitBreaker
       httpclient:  # HTTP 클라이언트에 대한 설정 속성
         connect-timeout: 2000 # 연결을 수립하기까지의 타임아웃(밀리초)
         response-timeout: 5s  # 응답을 받을 때까지의 타임아웃(기간)
