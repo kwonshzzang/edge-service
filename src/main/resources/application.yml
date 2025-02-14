@@ -52,3 +52,16 @@ spring:
               maxBackOff: 500ms
               factor: 2
               basedOnPreviousValue: false
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:  # 모든 서킷 브레이커에 대한 기본 설정
+        sliding-window-size: 20 # 회로가 폐쇄된 상태일 때 호출의 결과를 기록하는데 사용하는 슬라이딩 윈도의 크기
+        permitted-number-of-calls-in-half-open-state: 5 # 회로가 반개방 상태일 때 허용되는 호출의 수
+        failure-rate-threshold: 50 # 실패율이 임계값 이상이면 회로는 개방 상태로 바뀐다.
+        wait-duration-in-open-state: 15000 # 개방 상태에서 반개방 상태로 가기까지 기다릴 시간(밀리초)
+  timelimiter:
+    configs:
+      default:  # 모든 시간 제한에 대한 기본 설정
+        timeout-duration: 5s # 타임아웃 설정(초)
